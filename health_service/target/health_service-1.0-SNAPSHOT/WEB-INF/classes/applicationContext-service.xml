@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://code.alibabatech.com/schema/dubbo
+       http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+
+    <!--指定应用的名称-->
+    <dubbo:application name="health_service"/>
+    <!--指定暴露服务的端口,默认是20800,以及使用的协议-->
+    <dubbo:protocol port="20880" name="dubbo"/>
+    <!--指定服务注册中心的地址-->
+    <dubbo:registry address="zookeeper://127.0.0.1:2181"/>
+    <!--批量扫描服务,进行发布-->
+    <dubbo:annotation package="com.itheima.service"/>
+
+    <!--配置事务管理器,事务之前是使用在业务层的,现在就用在服务上-->
+    <bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager" id="manager">
+        <!--注入数据源-->
+        <property name="dataSource" ref="dataSource"/>
+
+
+    </bean>
+
+    <!--开启事务的注解驱动,
+    此处必须加入proxy-targat-class=true.
+    需要事务控制,会由spring框架产生代理对象,dubbo需要将service发布为服务
+    要求必须使用cglib创建代理对象
+    -->
+    <tx:annotation-driven transaction-manager="manager" proxy-target-class="true"/>
+
+
+    <!--从外部配置文件引入数据源-->
+    <import resource="classpath:applicationContext-dao.xml"/>
+
+</beans>

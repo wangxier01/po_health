@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.itheima.dao.CheckItemDao">
+    <!--在这写新增的sql语句-->
+    <insert id="add" parameterType="com.itheima.pojo.CheckItem">
+
+        insert into t_checkitem(code,name,sex,age,price,type,attention,remark) values(#{code},#{name},#{sex},#{age},#{price},#{type},#{attention},#{remark})
+
+    </insert>
+
+    <!--分页的模糊查询-->
+    <select id="findAllBycondition" parameterType="string" resultType="com.itheima.pojo.CheckItem">
+        select * from t_checkitem
+        <if test="value != null and value.length > 0 ">
+            where code like #{value} or name like #{value}
+        </if>
+    </select>
+
+    <!--查询是否被检查组引用-->
+    <select id="cheeckById" parameterType="int" resultType="int">
+        select count(1) from t_checkgroup_checkitem where checkitem_id=#{id}
+    </select>
+
+    <!--执行删除检查项的语句-->
+    <delete id="deleteById" parameterType="int">
+        delete from t_checkitem where id=#{id}
+    </delete>
+    <!--查询一个用户,达到数据回显-->
+    <select id="finOneById" parameterType="int" resultType="com.itheima.pojo.CheckItem">
+        select * from t_checkitem where id=#{id}
+    </select>
+
+<!--updat语句的新的写法,<set>标签-->
+    <update id="updateOne" parameterType="com.itheima.pojo.CheckItem" >
+        update t_checkitem
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="sex != null">
+                sex = #{sex},
+            </if>
+            <if test="code != null">
+                code = #{code},
+            </if>
+            <if test="age != null">
+                age = #{age},
+            </if>
+            <if test="price != null">
+                price = #{price},
+            </if>
+            <if test="type != null">
+                type = #{type},
+            </if>
+            <if test="attention != null">
+                attention = #{attention},
+            </if>
+            <if test="remark != null">
+                remark = #{remark},
+            </if>
+        </set>
+        where id = #{id}
+     </update>
+
+    <!--在新建检查组的弹框里要显示,查询所有检查项-->
+    <select id="findAllShow" resultType="com.itheima.pojo.CheckItem">
+        select * from t_checkitem
+    </select>
+
+
+</mapper>

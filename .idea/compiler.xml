@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="elementUI_demo" />
+        <module name="health_common" />
+        <module name="health_dao" />
+        <module name="health_interface" />
+        <module name="health_jobs" />
+        <module name="health_mobile" />
+        <module name="health_pojo" />
+        <module name="health_service" />
+        <module name="health_web" />
+        <module name="PareExcelDemo" />
+        <module name="spring_sercurity_demo1" />
+        <module name="spring_sercurity_demo2" />
+        <module name="spring_sercurity_demo3" />
+        <module name="springsecurity_demo" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="springsecurity" target="1.8" />
+      <module name="springsecurity_one" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

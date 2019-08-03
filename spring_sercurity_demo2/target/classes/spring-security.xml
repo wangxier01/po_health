@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xmlns:seccurity="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd
+       http://code.alibabatech.com/schema/dubbo
+       http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/security
+       http://www.springframework.org/schema/security/spring-security.xsd">
+
+        <!--
+         三  进阶:
+        3.1 过滤静态资源,不需要权限也可以访问
+        配置静态资源过滤,不需要登录就可以访问;
+        重要:所有的路径必须以/斜杠打头
+        <security:http pattern="/css/**" security="none"/>
+        none表示不需要权限
+        通常登录页面,不做拦截
+        -->
+    <security:http pattern="/css/**" security="none"/>
+    <security:http pattern="/js/**" security="none"/>
+    <security:http pattern="/login.html" security="none"/>
+    <security:http pattern="/fail.html" security="none"/>
+            <!--
+             一  拦截的配置
+             拦截http请求,
+            拦截http请求,自动配置,自动生成页面,是否使用spring的El表达是,
+            1 如果不使用El表达式,那么access就必须以ROLE_开头写;否则报错,查看类RoleVoter
+            2 如果使用El表达式,那么就不能使用字符串,只能使用表达式hasA...或者hasRole..
+            3 intercept拦截
+            4 pattern="/**"拦截规则,这个表示拦截所有;
+            5 access,表示访问,用户具有暗搓搓测试所配置的角,或者use-expressions拥有响应的权限,限定访问的
+            -->
+    <seccurity:http auto-config="true" use-expressions="false">
+
+                  <security:intercept-url pattern="/**" access="ROLE_ADMIN"/>
+
+
+                 <!--
+                 四 配置登录信息
+                 4.1 login-page 指定登录页面
+                 2   登录时,提交用户名的参数的名称,security通过request.getparameter获取
+                 3   default-target-url登录成功默认的跳转的url,可以是.HTML..jsp,或者*.都等都可以
+                     易错:如果是直接从登录页面登录过来的,那么登录成功就掉到这个指定的页面;
+                          如果是从购物车页面,点击订单跳出的登录页面,登录成功之后会回到购物车页面;
+                 4   always-use-default-target="true",如果设置为true,不论你从哪里跳转过来的
+                     登录成功都会回到指定的页面,一般设置false
+
+                  5  authentication-failure-url="login.html"登录失败的调转页面
+                  6  authentication-success-forward-url,登录成功后请求转发的路径
+                     他的配置会让default-target-url失效,一般选择不配置
+                 -->
+
+                <!--
+                二  认证授权管理器-->
+                <!--&lt;!&ndash;由用户业务来提供用户的信息,执行登陆认证&ndash;&gt;-->
+                <!--&lt;!&ndash;{noop}admin表示密码不操作,使用明文&ndash;&gt;-->
+                <!--&lt;!&ndash;authorities="ROLE ADMIN",表示这个用户拥有的权限,这个权限必须与access里面写的一样&ndash;&gt
+                这里有一个死循环的情况:
+                登录页面被拦截了,同时设置了,访问失败默认调转的登录页面,
+                -->
+                <security:form-login
+                        login-page="/login.html"
+                        username-parameter="username"
+                        password-parameter="password"
+                        default-target-url="/index.html"
+                        login-processing-url="/login.do"
+                        always-use-default-target="true"
+                        authentication-failure-url="/fail.html"
+                />
+        <!--禁止跨域访问的限制-->
+        <security:csrf disabled="true"/>
+
+                <!--退出登录的设置
+                1 退出成功跳登录页面
+                2 处理退出请求的url:logout.do
+                3 退出销毁session
+                -->
+                <security:logout
+                        logout-success-url="/login.html"
+                        logout-url="/logout.do"
+                        invalidate-session="true"/>
+
+
+    </seccurity:http>
+
+
+    <security:authentication-manager>
+         <security:authentication-provider>
+             <security:user-service>
+
+                 <security:user name="admin" authorities="ROLE_ADMIN" password="{noop}admin"/>
+
+             </security:user-service>
+         </security:authentication-provider>
+    </security:authentication-manager>
+
+</beans>

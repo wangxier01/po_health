@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xmlns:seccurity="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd
+       http://code.alibabatech.com/schema/dubbo
+       http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/security
+       http://www.springframework.org/schema/security/spring-security.xsd">
+
+    <!--
+    入门:
+    要求:启动服务器,会自动进入一个login界面,这个时候,我们访问不了首页,点击首页自动转到登录页面,我们没有写login界面,是框架帮我忙构建的一个登录页面login.html;
+    当我们的登录,密码和账号都是,admin,登录会进入favicon.ico,再重新访问index.HTML就到了.
+
+
+    一  拦截的配置
+     拦截http请求,
+    -->
+    <!--拦截http请求,自动配置,自动生成页面,是否使用spring的El表达是,
+    1 如果不使用El表达式,那么access就必须以ROLE_开头写;否则报错,查看类RoleVoter
+    2 如果使用El表达式,那么就不能使用字符串,只能使用表达式hasA...或者hasRole..
+
+    3 intercept拦截
+    4 pattern="/**"拦截规则,这个表示拦截所有;
+    5 access,表示访问,用户具有暗搓搓测试所配置的角,或者use-expressions拥有响应的权限,限定访问的
+    -->
+    <seccurity:http auto-config="true" use-expressions="false">
+
+          <security:intercept-url pattern="/**" access="ROLE_ADMIN"/>
+
+    </seccurity:http>
+
+    <!--
+    二  认证授权管理器
+        由用户业务来提供用户的信息,执行登陆认证
+        {noop}admin表示密码不操作,使用明文
+         authorities="ROLE ADMIN",表示这个用户拥有的权限,这个权限必须与access里面写的一样
+    -->
+    <security:authentication-manager>
+         <security:authentication-provider>
+             <security:user-service>
+
+                 <security:user name="admin" authorities="ROLE_ADMIN" password="{noop}admin"/>
+
+             </security:user-service>
+         </security:authentication-provider>
+    </security:authentication-manager>
+
+</beans>

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.itheima.dao.PackageDao">
+    <!--
+    查询套餐,分页展示
+    这里面只能用and,不能用&&
+    -->
+    <select id="findPage" resultType="com.itheima.pojo.Package" parameterType="string">
+        select * from t_package
+        <if test="value !=null and value.length >0">
+
+        where name like #{value} or code like #{value} or remark like #{value}
+
+        </if>
+    </select>
+
+    <!--
+    添加套餐的时候维护关系表
+    -->
+    <insert id="addLinkTable" parameterType="map">
+
+        insert  into t_package_checkgroup values (#{package_id},#{checkgroup_id})
+    </insert>
+
+    <!--
+    添加套餐
+    -->
+    <insert id="addpackage" parameterType="com.itheima.pojo.Package">
+        <selectKey resultType="int" order="AFTER" keyProperty="id">
+            select last_insert_id()
+        </selectKey>
+        insert  into t_package (name,code,helpCode,sex,age,price,remark,attention,src)
+        values (#{name},#{code},#{helpCode},#{sex},#{age},#{price},#{remark},#{attention},#{src})
+    </insert>
+
+    <!--删除套餐-->
+    <delete id="deletePackage" parameterType="int">
+        delete from t_package where id=${value}
+    </delete>
+
+    <!--删除关系表-->
+    <delete id="deletePackageAndLink" parameterType="int">
+        delete from  t_package_checkgroup where package_id=${value}
+    </delete>
+
+    <!--编辑,回显套餐-->
+    <select id="findPackageById" resultType="Package">
+        select * from t_package where id=${value}
+    </select>
+
+    <!--查询套餐的检查组-->
+    <select id="findPackageGroup" resultType="int" parameterType="int">
+        select checkgroup_id from t_package_checkgroup where package_id=${value}
+    </select>
+
+    <!--编辑套餐-->
+    <update id="handleEdit" parameterType="Package">
+        update t_package set  name=#{name},code=#{code},helpCode=#{helpCode},sex=#{sex},age=#{age},price=#{price},remark=#{remark},attention=#{attention},src=#{src}
+        where id = #{id}
+    </update>
+
+    <!--维护关系之前先删除,注解了-->
+
+    <!--
+    修改套餐,维护检查组的关系表
+    -->
+    <insert id="handleLinkTable" parameterType="int">
+        insert into t_package_checkgroup values(#{package_id},#{checkgroup_id})
+    </insert>
+
+
+    <!--
+    查询所有的套餐,移动端展示
+    -->
+    <select id="findAll" resultType="Package">
+      select * from t_package
+    </select>
+
+    <!--根据id查询套餐详情,展示套餐信息
+    需要:package.name,package.remark,package.sex,package.age
+    *      checkgroup.name,remark,
+    *      checkitem.name
+    -->
+    <select id="findById" resultMap="findPackageById" parameterType="int">
+
+       SELECT p.*,c.id checkgroup_id,c.name c_name,c.remark c_remark,tc.id checkitem_id,tc.name i_name
+       FROM  t_package p,t_checkgroup c,t_package_checkgroup pc,t_checkitem tc,t_checkgroup_checkitem tcc
+       WHERE p.id=pc.package_id AND c.id=pc.checkgroup_id
+       AND c.id=tcc.checkgroup_id AND tc.id=tcc.checkitem_id
+       AND p.id=${value}
+
+    </select>
+    <!--存在两个一对多-->
+    <resultMap id="findPackageById" type="Package">
+        <id  column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="remark" property="remark"/>
+        <result column="sex" property="sex"/>
+        <result column="age" property="age"/>
+        <result column="src" property="src"/>
+        <result column="code" property="code"/>
+        <result column="helpCode" property="helpCode"/>
+        <result column="price" property="price"/>
+        <result column="attention" property="attention"/>
+
+        <!--映射检查组的信息-->
+        <collection property="checkGroups" ofType="CheckGroup">
+            <id column="checkgroup_id" property="id"/>
+            
+            <result column="c_name" property="name"/>
+            <result column="c_remark" property="remark"/>
+
+            <!--检查组里面映射检查项-->
+            <collection property="checkItems" ofType="CheckItem">
+                <id column="checkitem_id" property="id"/>
+                <result column="i_name" property="name"/>
+            </collection>
+
+        </collection>
+
+    </resultMap>
+
+    <!--查询套餐的基本信息-->
+    <select id="InfoPackageById" resultType="package" parameterType="int">
+        select * from t_package where id=${value}
+    </select>
+
+
+    <!--
+    套餐的预约占比统计
+    -->
+    <select id="findPackageCount" resultType="map">
+        SELECT t.name name,p.m value
+        FROM t_package t,
+        (SELECT package_id,COUNT(1) m FROM t_order GROUP BY package_id) p
+        WHERE t.id = p.package_id
+    </select>
+
+</mapper>

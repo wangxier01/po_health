@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>health_parent</artifactId>
+        <groupId>com.itheima</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>health_dao</artifactId>
+    <packaging>jar</packaging>
+    <dependencies>
+        <!--dao存放dao接口和mybatis的映射文件
+        1 拷贝log4j
+        2 写mybatis的主配置文件,在里面配置分页插件
+        3 创建application-dao.xml,配置数据源,配置sqlsessionbean扫描接口
+        会使用到实体类,也会使用到常量工具,但是实体类已经有了,我只需要引入实体类-->
+        <dependency>
+            <groupId>com.itheima</groupId>
+            <artifactId>health_pojo</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+    </dependencies>
+
+
+</project>

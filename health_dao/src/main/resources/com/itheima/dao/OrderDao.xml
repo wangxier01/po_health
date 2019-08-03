@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.itheima.dao.OrderDao">
+
+    <!--根据订单信息动态查询-->
+    <select id="findOderSetting" resultType = "order" parameterType = "order">
+     select * from t_order
+     <where>
+         <if test="id != null">
+             and id = #{id}
+         </if>
+         <if test="memberId != null">
+             and member_id = #{memberId}
+         </if>
+         <if test="orderDate != null">
+             and orderDate = #{orderDate}
+         </if>
+
+         <if test="orderType != null">
+             and orderType = #{orderType}
+         </if>
+
+         <if test="orderStatus != null">
+             and orderStatus = #{orderStatus}
+         </if>
+
+         <if test="packageId != null">
+             and packageId = #{packageId}
+         </if>
+     </where>
+    </select>
+
+    <!--执行预约,插入预约的订单信息,需要键入订单id-->
+    <insert id="AddOrder" parameterType="com.itheima.pojo.Order" >
+        <selectKey keyProperty = "id" order="AFTER" resultType = "int">
+            select last_insert_id()
+        </selectKey>
+        insert into t_order ( member_id,orderDate,orderType,orderStatus,package_id)
+        values (#{memberId},#{orderDate},#{orderType},#{orderStatus},#{packageId})
+    </insert>
+
+
+    <!--统计热门套餐-->
+    <select id="findhotPackageDetail" resultType="map">
+    SELECT t.name,t.remark,p.count,p.proportion
+        FROM t_package t,(
+             SELECT package_id hot_id, COUNT(1) count,COUNT(1)/(SELECT COUNT(1) FROM t_order)proportion
+             FROM  t_order  GROUP BY package_id
+        )p
+        WHERE t.id=p.hot_id
+        ORDER BY count DESC  LIMIT 0,4
+    </select>
+
+
+</mapper>

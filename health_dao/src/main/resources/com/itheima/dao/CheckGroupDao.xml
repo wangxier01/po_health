@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itheima.dao.CheckGroupDao">
+    <!--增加检查组-->
+    <insert id="addgroup" parameterType="com.itheima.pojo.CheckGroup">
+     <selectKey resultType="int" order="AFTER" keyProperty="id">
+         select last_insert_id()
+     </selectKey>
+        insert into t_checkgroup (code,name,helpCode,sex,remark,attention)
+                          values (#{code},#{name},#{helpCode},#{sex},#{remark},#{attention})
+    </insert>
+
+    <!--检查组增加了,与之相关的检查项的表也要更新-->
+    <insert id="addItemAndGroup" parameterType="map">
+        insert into t_checkgroup_checkitem values (#{checkgroup_id},#{checkitem_id})
+    </insert>
+
+
+    <select id="findAllBycondition" parameterType="string" resultType="com.itheima.pojo.CheckGroup">
+        select * from t_checkgroup
+        <if test="value != null and value.length > 0">
+            where code like #{queryString} or name like #{queryString} or helpCode like #{queryString}
+        </if>
+    </select>
+
+    <!--根据id查询检查组,得到一个检查组对象-->
+    <select id="findGroup" parameterType="int" resultType="com.itheima.pojo.CheckGroup">
+        select id, code,name,helpCode,sex,remark,attention from t_checkgroup where id=#{groupId}
+    </select>
+
+    <!--根据检查组的id,查询检查组的检查项-->
+    <select id="findGroupItems" parameterType="int" resultType="int">
+        select checkitem_id from t_checkgroup_checkitem where checkgroup_id=#{checkitem_id}
+    </select>
+
+    <!--更新检查表的基本信息-->
+    <update id="updateGroup" parameterType="com.itheima.pojo.CheckGroup">
+        update t_checkgroup set code=#{code},name=#{name},helpCode=#{helpCode},sex=#{sex},remark=#{remark},attention=#{attention}
+        where id=#{id}
+    </update>
+    <!--更新检查组,就要更新检查组于检查项的关联表
+    -->
+    <delete id="deleteByGroupId" parameterType="int">
+        delete from t_checkgroup_checkitem where checkgroup_id=#{id}
+    </delete>
+
+    <!--在关联表,插入新的关联关系,检查组于检查项之间的-->
+    <insert id="addLinkItemAndGroup" parameterType="int">
+        insert into t_checkgroup_checkitem values (#{checkgroupId},#{checkitemid})
+    </insert>
+
+    <!--查询所有检查组
+    -->
+    <select id="findAll" resultType="com.itheima.pojo.CheckGroup">
+        select id,code,name,helpCode,sex,remark,attention from t_checkgroup
+    </select>
+
+
+
+</mapper>

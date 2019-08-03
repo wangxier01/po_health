@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+        <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+                "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itheima.dao.PermissionDao">
+<!--
+根据角色id,查询一个角色的权限的集合
+子查询
+  SELECT * FROM t_permission
+  WHERE id IN (SELECT permission_id FROM t_role_permission WHERE role_id = #{roleId})
+-->
+<select id="findpermissionById" parameterType="int" resultType="Permission">
+
+    SELECT tp.name,tp.keyword,tp.description FROM t_role tr,t_permission tp,t_role_permission trp
+    WHERE tr.id=trp.role_id
+    AND tp.id=trp.permission_id
+    AND tr.id=${value}
+
+    </select>
+</mapper>

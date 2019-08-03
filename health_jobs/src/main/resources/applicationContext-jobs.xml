@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://code.alibabatech.com/schema/dubbo
+        http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+<!--配置,包扫描-->
+    <context:component-scan base-package="com.itheima.jobs"/>
+
+    <!--允许注解-->
+    <context:annotation-config></context:annotation-config>
+
+    <!--注册自定义job-->
+    <bean id="clearImgJob" class="com.itheima.jobs.ClearImgJob"></bean>
+    <!--注册jobdetail,作用是负责通过反射调用指定的job-->
+    <bean id="jobdetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <!--注入目标对象,调用的是那一个任务类-->
+        <property name="targetObject" ref="clearImgJob"/>
+        <!--注入目标方法,调用的是那一个方法-->
+        <property name="targetMethod" value="clearImg"/>
+        <!--是否使用多线程来跑任务,true为多线程,false为单线程-->
+        <property name="concurrent" value="false"/>
+    </bean>
+
+    <!--注册一个触发器,指定任务触发的时间-->
+    <bean id="myTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <!--注入刚刚写的反射的要执行的方法的那个:jobdetail
+         七子表达式,就代表需要的触发的时间,七子表达式的值跟当前系统时间进行对比,
+         如果时间匹配上则触发.
+         一定要绑定触发时机的调用任务的策略
+        -->
+        <property name="jobDetail" ref="jobdetail"/>
+        <!--指定触发时间,基于cron表达式,计时的-->
+        <property name="cronExpression">
+            <!--秒分时日月周年,从0秒开始,没间隔2小时执行一次-->
+            <value>* 0/10 * * * ?</value>
+        </property>
+    </bean>
+
+    <!--注册一个统一的调度工厂,通过这个调度工厂调度任务
+    任务调试器,定时器,跟随系统的时间走
+
+    -->
+    <bean id="scheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <!--注入多个关联的触发器-->
+        <property name="triggers">
+            <list>
+                <!--可以接着写多个-->
+                <ref bean="myTrigger"/>
+            </list>
+        </property>
+
+    </bean>
+    <!--导入redis,因为需要操作redis-->
+    <import resource="classpath:spring-redis.xml"/>
+
+</beans>
